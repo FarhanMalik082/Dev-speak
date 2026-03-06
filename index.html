@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dev Speak</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0d1117;
+      --surface:   #161b22;
+      --border:    #30363d;
+      --border-hi: #484f58;
+      --text:      #e6edf3;
+      --muted:     #8b949e;
+      --accent:    #58a6ff;
+      --accent-dim:#1f6feb33;
+      --green:     #3fb950;
+      --red:       #f85149;
+      --yellow:    #d29922;
+      --mono:      'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+      --sans:      -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    html, body {
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 48px 16px 80px;
+    }
+
+    header {
+      width: 100%;
+      max-width: 680px;
+      margin-bottom: 36px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    .logo-icon {
+      width: 28px;
+      height: 28px;
+      background: var(--accent);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--bg);
+      font-family: var(--mono);
+      flex-shrink: 0;
+    }
+
+    h1 {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: -0.3px;
+    }
+
+    .tagline {
+      font-size: 13px;
+      color: var(--muted);
+      font-family: var(--mono);
+    }
+
+    .tagline span { color: var(--accent); }
+
+    main {
+      width: 100%;
+      max-width: 680px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+
+    .card-header {
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .card-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--muted);
+      font-family: var(--mono);
+    }
+
+    /* ── API Key ── */
+    .api-key-row {
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+
+    .provider-select {
+      background: var(--bg);
+      border: none;
+      border-right: 1px solid var(--border);
+      outline: none;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 12px;
+      padding: 10px 10px 10px 14px;
+      cursor: pointer;
+      flex-shrink: 0;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238b949e' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+      padding-right: 24px;
+      transition: color 0.15s;
+    }
+
+    .provider-select:hover { color: var(--text); }
+    .provider-select option { background: var(--surface); color: var(--text); }
+
+    .api-key-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 13px;
+      caret-color: var(--accent);
+      min-width: 0;
+      padding: 10px 14px;
+    }
+
+    .api-key-input::placeholder {
+      color: var(--muted);
+      opacity: 0.5;
+    }
+
+    .key-status {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--border-hi);
+      flex-shrink: 0;
+      margin-right: 14px;
+      transition: background 0.3s;
+    }
+
+    .key-status.set { background: var(--green); }
+
+    /* ── Textarea ── */
+    textarea {
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 13px;
+      line-height: 1.7;
+      padding: 14px;
+      resize: vertical;
+      min-height: 88px;
+      caret-color: var(--accent);
+    }
+
+    textarea::placeholder {
+      color: var(--muted);
+      opacity: 0.5;
+    }
+
+    /* ── Controls ── */
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .tone-group {
+      display: flex;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      flex: 1;
+    }
+
+    .tone-btn {
+      flex: 1;
+      padding: 8px 10px;
+      background: transparent;
+      border: none;
+      border-right: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 12px;
+      font-family: var(--mono);
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      white-space: nowrap;
+    }
+
+    .tone-btn:last-child { border-right: none; }
+    .tone-btn:hover { background: var(--accent-dim); color: var(--text); }
+    .tone-btn.active { background: var(--accent-dim); color: var(--accent); }
+
+    .generate-btn {
+      padding: 8px 20px;
+      background: var(--accent);
+      color: var(--bg);
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: var(--mono);
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+      white-space: nowrap;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .generate-btn:hover:not(:disabled) { opacity: 0.88; }
+    .generate-btn:active:not(:disabled) { transform: scale(0.97); }
+    .generate-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    /* ── Spinner ── */
+    .spinner {
+      width: 12px;
+      height: 12px;
+      border: 2px solid rgba(13,17,23,0.4);
+      border-top-color: var(--bg);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+      flex-shrink: 0;
+    }
+
+    .generate-btn.loading .spinner { display: block; }
+    .generate-btn.loading .btn-label { opacity: 0.7; }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ── Error banner ── */
+    .error-banner {
+      background: #2d1117;
+      border: 1px solid #6e2020;
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-size: 12px;
+      font-family: var(--mono);
+      color: var(--red);
+      display: none;
+      line-height: 1.5;
+    }
+
+    .error-banner.visible { display: block; }
+
+    /* ── Output cards ── */
+    .outputs {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .output-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+
+    .output-card.has-content { border-color: var(--border-hi); }
+
+    .output-header {
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .platform-tag {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .platform-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--border-hi);
+      transition: background 0.3s;
+    }
+
+    .output-card.has-content .platform-dot.x-dot  { background: var(--text); }
+    .output-card.has-content .platform-dot.li-dot { background: #0a66c2; }
+
+    .platform-name {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--muted);
+      font-family: var(--mono);
+    }
+
+    .output-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .char-count {
+      font-size: 11px;
+      font-family: var(--mono);
+      color: var(--muted);
+    }
+
+    .char-count.warn { color: var(--yellow); }
+    .char-count.over { color: var(--red); }
+
+    .copy-btn {
+      padding: 4px 10px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--muted);
+      font-size: 11px;
+      font-family: var(--mono);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .copy-btn.copied { border-color: var(--green); color: var(--green); }
+
+    .output-body {
+      padding: 14px;
+      min-height: 72px;
+      font-size: 13px;
+      line-height: 1.75;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .output-body.empty {
+      color: var(--muted);
+      opacity: 0.35;
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+
+    /* skeleton pulse while loading */
+    .output-body.loading {
+      color: transparent;
+      background: linear-gradient(90deg, var(--border) 25%, var(--border-hi) 50%, var(--border) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+      border-radius: 4px;
+      min-height: 80px;
+      user-select: none;
+    }
+
+    @keyframes shimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    footer {
+      margin-top: 48px;
+      font-size: 11px;
+      color: var(--muted);
+      font-family: var(--mono);
+      opacity: 0.4;
+      text-align: center;
+    }
+
+    @media (max-width: 480px) {
+      .controls { flex-direction: column; align-items: stretch; }
+      .generate-btn { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">T</div>
+    <h1>Dev Speak</h1>
+  </div>
+  <p class="tagline">// <span>what you built</span> → post-ready copy</p>
+</header>
+
+<main>
+
+  <!-- API Key -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-label">api key</span>
+      <div class="key-status" id="keyStatus"></div>
+    </div>
+    <div class="api-key-row">
+      <select class="provider-select" id="providerSelect">
+        <option value="anthropic">Anthropic</option>
+        <option value="openai">OpenAI</option>
+      </select>
+      <input
+        class="api-key-input"
+        id="apiKeyInput"
+        type="password"
+        placeholder="sk-ant-..."
+        autocomplete="off"
+        spellcheck="false"
+      />
+    </div>
+  </div>
+
+  <!-- Input -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-label">what you actually did</span>
+    </div>
+    <textarea
+      id="input"
+      rows="4"
+      placeholder="fixed a race condition in the auth middleware&#10;refactored the payment service to cut p99 latency by 40%&#10;migrated 3 legacy endpoints to GraphQL&#10;added rate limiting to the public API"
+    ></textarea>
+  </div>
+
+  <!-- Tone + Generate -->
+  <div class="controls">
+    <div class="tone-group">
+      <button class="tone-btn active" data-tone="Casual">casual</button>
+      <button class="tone-btn" data-tone="Professional">professional</button>
+      <button class="tone-btn" data-tone="Humble Brag">humble brag</button>
+    </div>
+    <button class="generate-btn" id="generateBtn">
+      <div class="spinner"></div>
+      <span class="btn-label">Generate →</span>
+    </button>
+  </div>
+
+  <!-- Error -->
+  <div class="error-banner" id="errorBanner"></div>
+
+  <!-- Outputs -->
+  <div class="outputs">
+    <div class="output-card" id="xCard">
+      <div class="output-header">
+        <div class="platform-tag">
+          <div class="platform-dot x-dot"></div>
+          <span class="platform-name">X / Twitter</span>
+        </div>
+        <div class="output-meta">
+          <span class="char-count" id="xCharCount"></span>
+          <button class="copy-btn" id="xCopyBtn" onclick="copyOutput('x')">copy</button>
+        </div>
+      </div>
+      <div class="output-body empty" id="xOutput">// output will appear here</div>
+    </div>
+
+    <div class="output-card" id="liCard">
+      <div class="output-header">
+        <div class="platform-tag">
+          <div class="platform-dot li-dot"></div>
+          <span class="platform-name">LinkedIn</span>
+        </div>
+        <div class="output-meta">
+          <span class="char-count" id="liCharCount"></span>
+          <button class="copy-btn" id="liCopyBtn" onclick="copyOutput('li')">copy</button>
+        </div>
+      </div>
+      <div class="output-body empty" id="liOutput">// output will appear here</div>
+    </div>
+  </div>
+
+</main>
+
+<footer>api key stored in memory only · never sent anywhere except your chosen provider · no tracking</footer>
+
+<script>
+// ─── State ────────────────────────────────────────────────────────────────────
+let currentTone     = 'Casual';
+let currentProvider = 'anthropic';
+
+// ─── Tone buttons ─────────────────────────────────────────────────────────────
+document.querySelectorAll('.tone-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tone-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentTone = btn.dataset.tone;
+  });
+});
+
+// ─── Provider select ──────────────────────────────────────────────────────────
+const providerSelect = document.getElementById('providerSelect');
+const apiKeyInput    = document.getElementById('apiKeyInput');
+const keyStatus      = document.getElementById('keyStatus');
+
+const PROVIDERS = {
+  anthropic: { placeholder: 'sk-ant-...', prefix: 'sk-ant-', minLen: 20 },
+  openai:    { placeholder: 'sk-...',     prefix: 'sk-',     minLen: 20 },
+};
+
+providerSelect.addEventListener('change', () => {
+  currentProvider = providerSelect.value;
+  apiKeyInput.value = '';
+  apiKeyInput.placeholder = PROVIDERS[currentProvider].placeholder;
+  keyStatus.className = 'key-status';
+});
+
+// ─── API key indicator ────────────────────────────────────────────────────────
+apiKeyInput.addEventListener('input', () => {
+  const val = apiKeyInput.value.trim();
+  const { prefix, minLen } = PROVIDERS[currentProvider];
+  keyStatus.className = 'key-status' + (val.startsWith(prefix) && val.length > minLen ? ' set' : '');
+});
+
+// ─── Keyboard shortcut ────────────────────────────────────────────────────────
+document.getElementById('input').addEventListener('keydown', e => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') generate();
+});
+
+document.getElementById('generateBtn').addEventListener('click', generate);
+
+// ─── Prompt builder ───────────────────────────────────────────────────────────
+function buildPrompt(rawInput, tone) {
+  const toneGuide = {
+    'Casual': `Casual and conversational. Write like a developer talking to other developers on Twitter. Use punchy sentences. Short. Energetic. Real. No corporate speak. Contractions are fine. Humor is welcome.`,
+    'Professional': `Professional and polished. Confident, clear, impact-focused. No fluff. No buzzwords. Speak to outcomes and craft. Sounds like a senior engineer who ships.`,
+    'Humble Brag': `Humble brag. Start self-deprecating or understated, then land on genuine pride in the work. The reader should feel the accomplishment without the writer explicitly claiming it. Relatable and a little funny.`,
+  };
+
+  return `You are a PMM Translator — you turn raw developer work logs into compelling social media posts that sound human, not like marketing copy.
+
+TONE: ${tone}
+TONE GUIDE: ${toneGuide[tone]}
+
+DEVELOPER INPUT:
+"${rawInput}"
+
+Generate exactly two outputs. Return ONLY valid JSON — no markdown, no code fences, no explanation. Use this exact schema:
+
+{
+  "x": "<post for X/Twitter, strictly under 280 characters, punchy hook, no hashtags unless they add value>",
+  "linkedin": "<post for LinkedIn, 3-5 sentences, starts with a strong hook, tells a mini story, ends with a takeaway or reflection, algorithm-friendly but not cringe>"
+}
+
+Rules:
+- Sound like a real person wrote this, not a content tool
+- Be specific to what was actually done — no vague "excited to share" language
+- The X post must be under 280 characters (count carefully)
+- The LinkedIn post should have natural paragraph breaks using \\n\\n between sentences or thoughts
+- No em-dashes (—). Use plain punctuation.
+- No hashtags on X unless genuinely useful. Max 2 on LinkedIn if relevant.
+- Do not add any text outside the JSON object`;
+}
+
+// ─── API callers ──────────────────────────────────────────────────────────────
+async function callAnthropic(apiKey, prompt) {
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true',
+    },
+    body: JSON.stringify({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 1000,
+      messages: [{ role: 'user', content: prompt }],
+    }),
+  });
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error(err?.error?.message || `API error ${response.status}`);
+  }
+
+  const data = await response.json();
+  return data?.content?.[0]?.text?.trim();
+}
+
+async function callOpenAI(apiKey, prompt) {
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o-mini',
+      max_tokens: 1000,
+      messages: [{ role: 'user', content: prompt }],
+    }),
+  });
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error(err?.error?.message || `API error ${response.status}`);
+  }
+
+  const data = await response.json();
+  return data?.choices?.[0]?.message?.content?.trim();
+}
+
+// ─── Main generate ────────────────────────────────────────────────────────────
+async function generate() {
+  const apiKey   = apiKeyInput.value.trim();
+  const rawInput = document.getElementById('input').value.trim();
+
+  if (!apiKey) {
+    showError(`Paste your ${currentProvider === 'anthropic' ? 'Anthropic' : 'OpenAI'} API key above to get started.`);
+    apiKeyInput.focus();
+    return;
+  }
+  if (!rawInput) {
+    shakeEl(document.getElementById('input'));
+    return;
+  }
+
+  clearError();
+  setLoading(true);
+
+  try {
+    const prompt = buildPrompt(rawInput, currentTone);
+    const raw = currentProvider === 'anthropic'
+      ? await callAnthropic(apiKey, prompt)
+      : await callOpenAI(apiKey, prompt);
+
+    if (!raw) throw new Error('Empty response from API.');
+
+    const cleaned = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
+    const parsed  = JSON.parse(cleaned);
+
+    if (!parsed.x || !parsed.linkedin) throw new Error('Unexpected response format.');
+
+    setOutput('x',  parsed.x.trim());
+    setOutput('li', parsed.linkedin.trim());
+
+  } catch (err) {
+    let msg = err.message || 'Something went wrong.';
+    if (msg.includes('401') || msg.toLowerCase().includes('incorrect api key') || msg.toLowerCase().includes('invalid x-api-key')) {
+      msg = 'Invalid API key. Check your key and try again.';
+    } else if (msg.includes('429')) {
+      msg = 'Rate limit hit. Wait a moment and try again.';
+    } else if (msg.includes('Failed to fetch') || msg.includes('NetworkError')) {
+      msg = 'Network error. Check your connection.';
+    }
+    showError(msg);
+    resetOutputs();
+  } finally {
+    setLoading(false);
+  }
+}
+
+// ─── UI helpers ───────────────────────────────────────────────────────────────
+function setLoading(on) {
+  const btn = document.getElementById('generateBtn');
+  btn.disabled = on;
+  btn.classList.toggle('loading', on);
+
+  if (on) {
+    ['xOutput', 'liOutput'].forEach(id => {
+      const el = document.getElementById(id);
+      el.className = 'output-body loading';
+      el.textContent = '';
+    });
+    ['xCard', 'liCard'].forEach(id => {
+      document.getElementById(id).classList.remove('has-content');
+    });
+    ['xCharCount', 'liCharCount'].forEach(id => {
+      document.getElementById(id).textContent = '';
+    });
+  }
+}
+
+function setOutput(platform, text) {
+  const outputId  = platform === 'x' ? 'xOutput'    : 'liOutput';
+  const cardId    = platform === 'x' ? 'xCard'      : 'liCard';
+  const countId   = platform === 'x' ? 'xCharCount' : 'liCharCount';
+
+  const el      = document.getElementById(outputId);
+  const card    = document.getElementById(cardId);
+  const countEl = document.getElementById(countId);
+
+  el.className  = 'output-body';
+  el.textContent = text;
+  card.classList.add('has-content');
+
+  const len = text.length;
+  if (platform === 'x') {
+    countEl.textContent = `${len}/280`;
+    countEl.className   = 'char-count' + (len > 280 ? ' over' : len > 240 ? ' warn' : '');
+  } else {
+    countEl.textContent = `${len} chars`;
+    countEl.className   = 'char-count';
+  }
+}
+
+function resetOutputs() {
+  ['xOutput', 'liOutput'].forEach(id => {
+    const el = document.getElementById(id);
+    el.className   = 'output-body empty';
+    el.textContent = '// output will appear here';
+  });
+  ['xCard', 'liCard'].forEach(id => {
+    document.getElementById(id).classList.remove('has-content');
+  });
+  ['xCharCount', 'liCharCount'].forEach(id => {
+    document.getElementById(id).textContent = '';
+  });
+}
+
+function showError(msg) {
+  const el = document.getElementById('errorBanner');
+  el.textContent = `// error: ${msg}`;
+  el.classList.add('visible');
+}
+
+function clearError() {
+  const el = document.getElementById('errorBanner');
+  el.textContent = '';
+  el.classList.remove('visible');
+}
+
+function shakeEl(el) {
+  el.style.outline = '1px solid var(--red)';
+  setTimeout(() => { el.style.outline = ''; }, 800);
+}
+
+// ─── Copy ─────────────────────────────────────────────────────────────────────
+function copyOutput(platform) {
+  const el  = document.getElementById(platform === 'x' ? 'xOutput' : 'liOutput');
+  const btn = document.getElementById(platform === 'x' ? 'xCopyBtn' : 'liCopyBtn');
+
+  if (!el.textContent || el.classList.contains('empty') || el.classList.contains('loading')) return;
+
+  navigator.clipboard.writeText(el.textContent).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = el.textContent;
+    ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  }).finally(() => {
+    btn.textContent = 'copied!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'copy';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+</script>
+</body>
+</html>
