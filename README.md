@@ -1,4 +1,4 @@
-# PMM Translator 🚀
+# Dev Speak 🚀
 
 > Turn what you actually built into a post people actually read.
 
@@ -78,7 +78,7 @@ Farhan Malik — PMM at [Command Code](https://commandcode.ai)
 
 Day 3 of learning to code. AI-assisted. Honest about it.
 
-Follow the build-in-public journey on [X](https://x.com) and [LinkedIn](https://linkedin.com).
+Follow the build-in-public journey on [X]((https://x.com/MrMalikFarhan)) and [LinkedIn]((https://www.linkedin.com/in/engr-farhan-malik/)).
 
 ---
 
